@@ -1,12 +1,21 @@
-# 🧵 Custom Thread Pool Implementation
+<div align="center">
 
-> A from-scratch implementation of Java's `ExecutorService` / `ThreadPoolExecutor` concept,
-> built for learning. Demonstrates worker threads, a blocking task queue, futures,
-> pluggable rejection policies, and shutdown lifecycle.
+# Custom Thread Pool Implementation
+
+A from-scratch implementation of Java's `ExecutorService` / `ThreadPoolExecutor` concept,
+built for learning. Demonstrates worker threads, a blocking task queue, futures,
+pluggable rejection policies, and shutdown lifecycle.
+
+![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?logo=openjdk&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-3.6%2B-C71A36?logo=apachemaven&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-12%20passing-brightgreen?logo=junit5&logoColor=white)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache&logoColor=white)
+
+</div>
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### Simple construction
 
@@ -44,7 +53,7 @@ ThreadPoolExecutorService pool = ThreadPoolExecutorService.builder(4)
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 ```
    Producer threads                             Worker threads
@@ -61,14 +70,14 @@ ThreadPoolExecutorService pool = ThreadPoolExecutorService.builder(4)
 
 | Step | What happens |
 |------|-------------|
-| 1️⃣ **Submit** | Puts a task on the `TaskQueue` (default: `BlockingTaskQueue`) |
-| 2️⃣ **Workers loop** | `take()` a task (blocks if queue empty) → `run()` it → repeat |
-| 3️⃣ **Future** | Wraps a `Callable` — calling `get()` blocks until the result is ready |
-| 4️⃣ **Shutdown** | Sends a `PoisonPill` per worker; each worker exits when it receives one |
+| **1. Submit** | Puts a task on the `TaskQueue` (default: `BlockingTaskQueue`) |
+| **2. Workers loop** | `take()` a task (blocks if queue empty) → `run()` it → repeat |
+| **3. Future** | Wraps a `Callable` — calling `get()` blocks until the result is ready |
+| **4. Shutdown** | Sends a `PoisonPill` per worker; each worker exits when it receives one |
 
 ---
 
-## 🔄 Shutdown Lifecycle
+## Shutdown Lifecycle
 
 ```
   RUNNING  ──shutdown()──▶  SHUTDOWN  ──all workers exit──▶  TERMINATED
@@ -82,7 +91,7 @@ ThreadPoolExecutorService pool = ThreadPoolExecutorService.builder(4)
 
 ---
 
-## 🎨 Design Patterns
+## Design Patterns
 
 | Pattern | Where | Purpose |
 |---------|-------|---------|
@@ -93,7 +102,7 @@ ThreadPoolExecutorService pool = ThreadPoolExecutorService.builder(4)
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/main/java/com/custom/threadpool/
@@ -126,7 +135,7 @@ src/test/java/com/custom/threadpool/
 
 ---
 
-## 🔗 Mapping to Real Java Classes
+## Mapping to Real Java Classes
 
 | Custom Class | Real JDK Class |
 |---|---|
@@ -145,7 +154,7 @@ src/test/java/com/custom/threadpool/
 
 ---
 
-## 🧪 Building and Testing
+## Building and Testing
 
 ```bash
 mvn test
@@ -158,3 +167,9 @@ Runs **12 tests** covering:
 - Shutdown lifecycle and `awaitTermination`
 - Worker resilience (bad tasks don't kill workers)
 - Builder and rejection policies (discard, caller-runs)
+
+---
+
+## License
+
+This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
