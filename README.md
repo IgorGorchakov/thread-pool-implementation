@@ -1,6 +1,8 @@
 <div align="center">
 
-# Custom Thread Pool Implementation
+<img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Thread_pool.svg" alt="Thread Pool Diagram" width="600">
+
+# Thread Pool Implementation
 
 A from-scratch implementation of Java's `ExecutorService` / `ThreadPoolExecutor` concept,
 built for learning. Demonstrates worker threads, a blocking task queue, futures,
@@ -20,7 +22,7 @@ pluggable rejection policies, and shutdown lifecycle.
 ### Simple construction
 
 ```java
-ThreadPoolExecutorService pool = new ThreadPoolExecutorService(4); // 4 worker threads
+ThreadPool pool = new ThreadPool(4); // 4 worker threads
 
 // Submit a fire-and-forget task
 pool.submit(() -> System.out.println("Hello from " + Thread.currentThread().getName()));
@@ -37,7 +39,7 @@ pool.awaitTermination(5000);
 ### Builder with custom configuration
 
 ```java
-ThreadPoolExecutorService pool = ThreadPoolExecutorService.builder(4)
+ThreadPool pool = ThreadPool.builder(4)
     .taskQueue(new BlockingTaskQueue())
     .rejectionPolicy(RejectionPolicies.callerRuns())
     .build();
@@ -96,7 +98,7 @@ ThreadPoolExecutorService pool = ThreadPoolExecutorService.builder(4)
 | Pattern | Where | Purpose |
 |---------|-------|---------|
 | **Strategy** | `RejectionPolicy`, `TaskQueue` | Pluggable rejection behaviour and queue implementation |
-| **Builder** | `ThreadPoolExecutorService.Builder` | Flexible, readable pool construction |
+| **Builder** | `ThreadPoolBuilder` | Flexible, readable pool construction |
 | **Observer** | `Worker.Callback` | Decouples worker lifecycle events from the pool |
 | **Poison Pill** | `PoisonPill` | Graceful shutdown signalling through the task queue |
 
@@ -111,7 +113,8 @@ src/main/java/com/custom/threadpool/
 ├── Callable.java                       API — functional interface for value-returning tasks
 │
 ├── core/                               Pool implementation
-│   ├── ThreadPoolExecutorService.java    Thread pool with Builder
+│   ├── ThreadPool.java                   Thread pool — submit, shutdown, lifecycle
+│   ├── ThreadPoolBuilder.java            Fluent builder for custom pool configuration
 │   └── Worker.java                       Daemon thread: take → run → repeat
 │
 ├── future/                             Asynchronous result
@@ -126,7 +129,7 @@ src/main/java/com/custom/threadpool/
 │   ├── RejectionPolicy.java             Interface — reject(Runnable)
 │   └── RejectionPolicies.java           Built-in policies: abort, discard, callerRuns
 │
-└── shotdown/                           Shutdown signalling
+└── shootdown/                          Shutdown signalling
     └── PoisonPill.java                   Sentinel task that tells a worker to exit
 
 src/test/java/com/custom/threadpool/
@@ -140,7 +143,7 @@ src/test/java/com/custom/threadpool/
 | Custom Class | Real JDK Class |
 |---|---|
 | `ExecutorService` | `java.util.concurrent.ExecutorService` |
-| `ThreadPoolExecutorService` | `java.util.concurrent.ThreadPoolExecutor` |
+| `ThreadPool` | `java.util.concurrent.ThreadPoolExecutor` |
 | `Callable<V>` | `java.util.concurrent.Callable<V>` |
 | `Future<V>` | `java.util.concurrent.Future<V>` |
 | `FutureImpl<V>` | `java.util.concurrent.FutureTask<V>` |

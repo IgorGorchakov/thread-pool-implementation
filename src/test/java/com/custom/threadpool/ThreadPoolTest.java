@@ -1,6 +1,6 @@
 package com.custom.threadpool;
 
-import com.custom.threadpool.core.ThreadPoolExecutorService;
+import com.custom.threadpool.core.ThreadPool;
 import com.custom.threadpool.future.Future;
 import com.custom.threadpool.rejection.RejectionPolicies;
 import org.junit.jupiter.api.AfterEach;
@@ -14,9 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ThreadPoolExecutorServiceTest {
+class ThreadPoolTest {
 
-    private ThreadPoolExecutorService pool;
+    private ThreadPool pool;
 
     @AfterEach
     void tearDown() throws InterruptedException {
@@ -30,7 +30,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void submitRunnableExecutes() throws InterruptedException {
-        pool = new ThreadPoolExecutorService(2);
+        pool = new ThreadPool(2);
         CountDownLatch latch = new CountDownLatch(1);
         boolean[] executed = {false};
 
@@ -45,7 +45,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void submitCallableReturnsResult() throws Exception {
-        pool = new ThreadPoolExecutorService(2);
+        pool = new ThreadPool(2);
 
         Future<Integer> future = pool.submit(() -> 42);
 
@@ -54,7 +54,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void submitCallableWithException() {
-        pool = new ThreadPoolExecutorService(2);
+        pool = new ThreadPool(2);
 
         Future<String> future = pool.submit(() -> {
             throw new RuntimeException("boom");
@@ -68,7 +68,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void multipleTasksExecuted() throws InterruptedException {
-        pool = new ThreadPoolExecutorService(4);
+        pool = new ThreadPool(4);
         int taskCount = 20;
         AtomicInteger counter = new AtomicInteger(0);
         CountDownLatch latch = new CountDownLatch(taskCount);
@@ -86,7 +86,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void tasksRunOnDifferentThreads() throws InterruptedException {
-        pool = new ThreadPoolExecutorService(4);
+        pool = new ThreadPool(4);
         List<String> threadNames = Collections.synchronizedList(new ArrayList<>());
         CountDownLatch latch = new CountDownLatch(4);
 
@@ -107,7 +107,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void shutdownRejectsNewTasks() {
-        pool = new ThreadPoolExecutorService(2);
+        pool = new ThreadPool(2);
         pool.shutdown();
 
         assertTrue(pool.isShutdown());
@@ -116,7 +116,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void shutdownCompletesQueuedTasks() throws Exception {
-        pool = new ThreadPoolExecutorService(1);
+        pool = new ThreadPool(1);
         AtomicInteger counter = new AtomicInteger(0);
         List<Future<Integer>> futures = new ArrayList<>();
 
@@ -134,7 +134,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void awaitTermination() throws InterruptedException {
-        pool = new ThreadPoolExecutorService(2);
+        pool = new ThreadPool(2);
 
         pool.submit(() -> {
             try { Thread.sleep(50); } catch (InterruptedException ignored) {}
@@ -152,7 +152,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void taskExceptionDoesNotKillWorker() throws Exception {
-        pool = new ThreadPoolExecutorService(1);
+        pool = new ThreadPool(1);
 
         pool.submit(() -> { throw new RuntimeException("bad"); });
         Thread.sleep(50);
@@ -163,7 +163,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void singleThreadPoolRunsTasksInOrder() throws InterruptedException {
-        pool = new ThreadPoolExecutorService(1);
+        pool = new ThreadPool(1);
         List<Integer> order = Collections.synchronizedList(new ArrayList<>());
         CountDownLatch latch = new CountDownLatch(3);
 
@@ -183,7 +183,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void builderCreatesPoolWithCustomPolicy() {
-        pool = ThreadPoolExecutorService.builder(2)
+        pool = ThreadPool.builder(2)
                 .rejectionPolicy(RejectionPolicies.discard())
                 .build();
 
@@ -193,7 +193,7 @@ class ThreadPoolExecutorServiceTest {
 
     @Test
     void callerRunsPolicyExecutesOnCallerThread() {
-        pool = ThreadPoolExecutorService.builder(2)
+        pool = ThreadPool.builder(2)
                 .rejectionPolicy(RejectionPolicies.callerRuns())
                 .build();
 

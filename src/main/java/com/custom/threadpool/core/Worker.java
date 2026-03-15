@@ -1,7 +1,7 @@
 package com.custom.threadpool.core;
 
 import com.custom.threadpool.queue.TaskQueue;
-import com.custom.threadpool.shotdown.PoisonPill;
+import com.custom.threadpool.shootdown.PoisonPill;
 
 /**
  * A daemon thread that continuously takes tasks from a {@link TaskQueue} and executes them.
@@ -16,7 +16,7 @@ import com.custom.threadpool.shotdown.PoisonPill;
  *   <li>{@link Callback} — to notify the pool on exit (Observer pattern)</li>
  * </ul>
  *
- * @see ThreadPoolExecutorService
+ * @see ThreadPool
  * @see PoisonPill
  */
 public class Worker extends Thread {

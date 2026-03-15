@@ -8,7 +8,7 @@ import com.custom.threadpool.queue.BlockingTaskQueue;
 import com.custom.threadpool.queue.TaskQueue;
 import com.custom.threadpool.rejection.RejectionPolicies;
 import com.custom.threadpool.rejection.RejectionPolicy;
-import com.custom.threadpool.shotdown.PoisonPill;
+import com.custom.threadpool.shootdown.PoisonPill;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </pre>
  *
  * <h3>Construction</h3>
- * <p>Use the simple constructor for defaults, or the {@link Builder} for full control:</p>
+ * <p>Use the simple constructor for defaults, or the {@link ThreadPoolBuilder} for full control:</p>
  * <pre>{@code
  * // Simple
  * ThreadPoolExecutorService pool = new ThreadPoolExecutorService(4);
@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <h3>Design patterns</h3>
  * <ul>
  *   <li><b>Strategy</b>    — {@link RejectionPolicy} and {@link TaskQueue} are pluggable</li>
- *   <li><b>Builder</b>     — {@link Builder} for flexible, readable construction</li>
+ *   <li><b>Builder</b>     — {@link ThreadPoolBuilder} for flexible, readable construction</li>
  *   <li><b>Observer</b>    — {@link Worker.Callback} decouples worker lifecycle from the pool</li>
  *   <li><b>Poison Pill</b> — {@link PoisonPill} for graceful shutdown signalling</li>
  * </ul>
@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see TaskQueue
  * @see RejectionPolicy
  */
-public class ThreadPoolExecutorService implements ExecutorService {
+public class ThreadPool implements ExecutorService {
 
     private final TaskQueue taskQueue;
     private final RejectionPolicy rejectionPolicy;
@@ -69,70 +69,14 @@ public class ThreadPoolExecutorService implements ExecutorService {
     private volatile boolean terminated = false;
     private final Object terminationLock = new Object();
 
-    // ── Builder ─────────────────────────────────────────────────────────
-
     /**
-     * Fluent builder for constructing a {@link ThreadPoolExecutorService} with custom configuration.
-     *
-     * <pre>{@code
-     * CustomThreadPool pool = CustomThreadPool.builder(4)
-     *     .rejectionPolicy(RejectionPolicies.callerRuns())
-     *     .taskQueue(new BlockingTaskQueue())
-     *     .build();
-     * }</pre>
-     */
-    public static class Builder {
-        private final int poolSize;
-        private TaskQueue taskQueue = new BlockingTaskQueue();
-        private RejectionPolicy rejectionPolicy = RejectionPolicies.abort();
-
-        private Builder(int poolSize) {
-            if (poolSize <= 0) {
-                throw new IllegalArgumentException("Pool size must be positive");
-            }
-            this.poolSize = poolSize;
-        }
-
-        /**
-         * Sets the task queue implementation. Defaults to {@link BlockingTaskQueue}.
-         *
-         * @param taskQueue the queue to use
-         * @return this builder
-         */
-        public Builder taskQueue(TaskQueue taskQueue) {
-            this.taskQueue = taskQueue;
-            return this;
-        }
-
-        /**
-         * Sets the rejection policy. Defaults to {@link RejectionPolicies#abort()}.
-         *
-         * @param rejectionPolicy the policy to use when tasks are rejected
-         * @return this builder
-         */
-        public Builder rejectionPolicy(RejectionPolicy rejectionPolicy) {
-            this.rejectionPolicy = rejectionPolicy;
-            return this;
-        }
-
-        /**
-         * Builds and starts the thread pool.
-         *
-         * @return a new, running {@link ThreadPoolExecutorService}
-         */
-        public ThreadPoolExecutorService build() {
-            return new ThreadPoolExecutorService(poolSize, taskQueue, rejectionPolicy);
-        }
-    }
-
-    /**
-     * Returns a new {@link Builder} for constructing a thread pool with the given size.
+     * Returns a new {@link ThreadPoolBuilder} for constructing a thread pool with the given size.
      *
      * @param poolSize the number of worker threads
      * @return a new builder instance
      */
-    public static Builder builder(int poolSize) {
-        return new Builder(poolSize);
+    public static ThreadPoolBuilder builder(int poolSize) {
+        return new ThreadPoolBuilder(poolSize);
     }
 
     // ── Constructors ────────────────────────────────────────────────────
@@ -144,11 +88,11 @@ public class ThreadPoolExecutorService implements ExecutorService {
      *
      * @param poolSize the number of worker threads (must be positive)
      */
-    public ThreadPoolExecutorService(int poolSize) {
+    public ThreadPool(int poolSize) {
         this(poolSize, new BlockingTaskQueue(), RejectionPolicies.abort());
     }
 
-    private ThreadPoolExecutorService(int poolSize, TaskQueue taskQueue, RejectionPolicy rejectionPolicy) {
+    ThreadPool(int poolSize, TaskQueue taskQueue, RejectionPolicy rejectionPolicy) {
         this.taskQueue = taskQueue;
         this.rejectionPolicy = rejectionPolicy;
         this.workers = new Worker[poolSize];

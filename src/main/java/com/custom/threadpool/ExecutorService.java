@@ -1,6 +1,6 @@
 package com.custom.threadpool;
 
-import com.custom.threadpool.core.ThreadPoolExecutorService;
+import com.custom.threadpool.core.ThreadPool;
 import com.custom.threadpool.future.Future;
 
 /**
@@ -15,7 +15,7 @@ import com.custom.threadpool.future.Future;
  *   RUNNING  →  SHUTDOWN  →  TERMINATED
  * </pre>
  *
- * @see ThreadPoolExecutorService
+ * @see ThreadPool
  */
 public interface ExecutorService {
 

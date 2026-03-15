@@ -1,6 +1,6 @@
-package com.custom.threadpool.shotdown;
+package com.custom.threadpool.shootdown;
 
-import com.custom.threadpool.core.ThreadPoolExecutorService;
+import com.custom.threadpool.core.ThreadPool;
 
 /**
  * A sentinel task that signals a {@link com.custom.threadpool.core.Worker} thread to exit.
@@ -10,10 +10,10 @@ import com.custom.threadpool.core.ThreadPoolExecutorService;
  * {@code instanceof} before calling {@code run()}, and break out of their loop.</p>
  *
  * <p>One poison pill is enqueued per worker during
- * {@link ThreadPoolExecutorService#shutdown()}.</p>
+ * {@link ThreadPool#shutdown()}.</p>
  *
  * @see com.custom.threadpool.core.Worker
- * @see ThreadPoolExecutorService#shutdown()
+ * @see ThreadPool#shutdown()
  */
 public final class PoisonPill implements Runnable {
 

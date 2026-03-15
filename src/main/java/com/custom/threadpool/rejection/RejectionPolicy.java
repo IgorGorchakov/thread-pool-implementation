@@ -1,6 +1,6 @@
 package com.custom.threadpool.rejection;
 
-import com.custom.threadpool.core.ThreadPoolExecutorService;
+import com.custom.threadpool.core.ThreadPoolBuilder;
 
 /**
  * Strategy for handling tasks that are submitted to a thread pool after it has been shut down.
@@ -14,7 +14,7 @@ import com.custom.threadpool.core.ThreadPoolExecutorService;
  * }</pre>
  *
  * @see RejectionPolicies
- * @see ThreadPoolExecutorService.Builder#rejectionPolicy(RejectionPolicy)
+ * @see ThreadPoolBuilder#rejectionPolicy(RejectionPolicy)
  */
 @FunctionalInterface
 public interface RejectionPolicy {
