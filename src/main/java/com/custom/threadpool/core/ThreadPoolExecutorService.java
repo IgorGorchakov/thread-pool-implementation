@@ -10,6 +10,8 @@ import com.custom.threadpool.rejection.RejectionPolicies;
 import com.custom.threadpool.rejection.RejectionPolicy;
 import com.custom.threadpool.shotdown.PoisonPill;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * A fixed-size thread pool that executes submitted tasks using a set of worker threads.
  *
@@ -62,6 +64,7 @@ public class ThreadPoolExecutorService implements ExecutorService {
     private final TaskQueue taskQueue;
     private final RejectionPolicy rejectionPolicy;
     private final Worker[] workers;
+    private final AtomicInteger activeWorkers;
     private volatile boolean shutdown = false;
     private volatile boolean terminated = false;
     private final Object terminationLock = new Object();
@@ -149,6 +152,7 @@ public class ThreadPoolExecutorService implements ExecutorService {
         this.taskQueue = taskQueue;
         this.rejectionPolicy = rejectionPolicy;
         this.workers = new Worker[poolSize];
+        this.activeWorkers = new AtomicInteger(poolSize);
 
         for (int i = 0; i < poolSize; i++) {
             workers[i] = new Worker("pool-thread-" + i, taskQueue, this::onWorkerExit);
@@ -244,14 +248,11 @@ public class ThreadPoolExecutorService implements ExecutorService {
      * @param exitedWorker the worker that just exited
      */
     private void onWorkerExit(Worker exitedWorker) {
-        for (Worker w : workers) {
-            if (w != exitedWorker && w.isAlive()) {
-                return;
+        if (activeWorkers.decrementAndGet() == 0) {
+            terminated = true;
+            synchronized (terminationLock) {
+                terminationLock.notifyAll();
             }
-        }
-        terminated = true;
-        synchronized (terminationLock) {
-            terminationLock.notifyAll();
         }
     }
 }
